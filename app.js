@@ -128,6 +128,12 @@ function getinfo(url, callback) {
       })(),
       //影评
       longcomments: [],
+      //短评
+      shortcomments:[],
+      //图片
+      pics:[],
+      //获奖情况
+      awards:[]
     }
     callback(null, movie)
   })
@@ -290,7 +296,7 @@ function getshortcomments(movie, nexturl, callback) {
 
     let $ = cheerio.load(data.body)
     let objs = Array.from($('#comments>div.comment-item'));
-    console.log(items)
+    // console.log(objs)
     let shortcomments = []
     for (let value of objs) {
       let comment = {
@@ -304,10 +310,22 @@ function getshortcomments(movie, nexturl, callback) {
 
       }
       shortcomments.push(comment)
-      console.log(comment)
+      // console.log(comment)
     }
+    console.log('111')
     movie.shortcomments.push(shortcomments)
-    hasnext($)
+    hasnext($, comments, function (err, movie, nexturl) {
+      if (err) {
+        console.log(err)
+
+      }
+      if (nexturl) {
+        getshortcomments(movie, nexturl)
+      } else {
+        callback(null.movie)
+      }
+
+    })
   })
 }
 
@@ -328,20 +346,32 @@ function hasnext($, channel, callback) {
     // return getfilmrevinfo(movie, nexturl)
 
   } else {
-    console.log("这部电影的影评已经爬完")
+    console.log("没有下一页了")
     cb(null, movie, null)
   }
 }
 
 
-getinfo("https://movie.douban.com/subject/25862357", function (err, movie) {
-  if (err) {
-    console.log(err)
-  }
-  getfilmrevinfo(movie, null, function (err, movie) {
+function Do(url, callback) {
+  getinfo("https://movie.douban.com/subject/25862357", function (err, movie) {
     if (err) {
       console.log(err)
     }
-    console.log(movie)
+    getshortcomments(movie, null, function (err, movie) {
+      if (err) {
+        console.log(err)
+      }
+      console.log(movie)
+      callback(null)
+    })
   })
+}
+
+
+let urls = ["https://movie.douban.com/subject/25862357"]
+
+async.eachSeries(urls,Do,function(err){
+  if(err){
+    console.log(err)
+  }
 })
