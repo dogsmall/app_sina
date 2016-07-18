@@ -1,12 +1,11 @@
 'use strict';
-
-
 var request = require('request').defaults({
   jar: true
 })
 var cheerio = require('cheerio')
 var fs = require('fs')
 var async = require('async')
+var Jumu = require('./models/jumu.js')
 
 /**
  * 获取基本信息
@@ -22,13 +21,15 @@ function getinfo(url, callback) {
     }
   }
   setTimeout(function () {
-    console.log(options)
+    // console.log(options)
     request(options, function (err, data) {
       if (err) {
         console.log("getinfo err is:" + err)
       }
       let $ = cheerio.load(data.body)
       let movie = {
+        //是否是研究目标
+        istarget: false,
         // 豆瓣url
         url: url,
         //豆瓣电影名
@@ -152,7 +153,7 @@ function getawards(movie, callback) {
       Cookie: ' ll="108288"; bid=vLofpXemIo0; __utma=30149280.798883795.1467016530.1467016530.1467016875.2; __utmc=30149280; __utmz=30149280.1467016875.2.2.utmcsr=sns-nav|utmccn=(not%20set)|utmcmd=douban; __utma=223695111.1460687376.1467016532.1467016532.1467016532.1; __utmc=223695111; __utmz=223695111.1467016532.1.1.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1467016534%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_id.100001.4cf6=fab42eaaeed692a8.1467016534.1.1467016918.1467016534.; ap=1; ps=y; dbcl2="137448756:e9/xvl5xGp4"; ck=LV5q; push_noty_num=0; push_doumail_num=5; __utmv=30149280.13744'
     }
   }
-  console.log(options)
+  // console.log(options)
   request(options, function (err, data) {
     if (err) {
       console.log("getawards is err:" + err)
@@ -240,15 +241,7 @@ function getlongcomments(movie, nexturl, cb) {
       }
     }
   }
-  // async.waterfall([],function(err,results){
-  //   if(err){
-  //     console.log(err)
-  //   }
-
-  // })
-
   setTimeout(function () {
-    // console.log(options)
     request(options, function (err, data) {
       let $ = cheerio.load(data.body);
       let objs = Array.from($('#content > div > div.article > div:nth-child(2)>div.review'))
@@ -262,9 +255,7 @@ function getlongcomments(movie, nexturl, cb) {
 
             }
           }
-          // console.log(options)
           request(options, function (err, data) {
-            // console.log(data.body)
             let $ = cheerio.load(data.body)
             let filmrev = {
               longcomments_url: options.url,
@@ -281,7 +272,6 @@ function getlongcomments(movie, nexturl, cb) {
               disagree: $("a.btn-unuseful").next().text(),
               comment: []
             }
-            console.log(filmrev)
             movie.longcomments.push(filmrev)
           })
         }, i * 2000);
@@ -376,7 +366,7 @@ function getshortcomments(movie, nexturl, cb) {
  * 是否有下一页
  */
 function hasnext($, channel, movie, cb, callback) {
-  if (channel === "photos") {
+  if (channel === "photos" || channel === "tag") {
     if ($('div.paginator >span.next>a').attr('href')) {
       console.log("图片还有下一页")
       let nexturl = {
@@ -409,45 +399,199 @@ function hasnext($, channel, movie, cb, callback) {
   }
 }
 
+
 /**
- * eachSeries的执行函数
+ * 获取一年的所有豆瓣剧目url
  */
-function Do(url, callback) {
-  getinfo(url, function (err, movie) {
-    if (err) {
-      console.log(err)
+function geturls(year, urls, nexturl, cb) {
+  let options
+  if (nexturl) {
+    options = nexturl
+  } else {
+    options = {
+      url: "https://movie.douban.com/tag/" + year + "?start=0&type=T",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0",
+        Cookie: ' ll="108288"; bid=vLofpXemIo0; __utma=30149280.798883795.1467016530.1467016530.1467016875.2; __utmc=30149280; __utmz=30149280.1467016875.2.2.utmcsr=sns-nav|utmccn=(not%20set)|utmcmd=douban; __utma=223695111.1460687376.1467016532.1467016532.1467016532.1; __utmc=223695111; __utmz=223695111.1467016532.1.1.utmcsr=douban.com|utmccn=(referral)|utmcmd=referral|utmcct=/; _pk_ref.100001.4cf6=%5B%22%22%2C%22%22%2C1467016534%2C%22https%3A%2F%2Fwww.douban.com%2F%22%5D; _pk_id.100001.4cf6=fab42eaaeed692a8.1467016534.1.1467016918.1467016534.; ap=1; ps=y; dbcl2="137448756:e9/xvl5xGp4"; ck=LV5q; push_noty_num=0; push_doumail_num=5; __utmv=30149280.13744'
+      }
     }
-    getshortcomments(movie, null, function (err, movie) {
+  }
+  setTimeout(function () {
+    request(options, function (err, data) {
       if (err) {
         console.log(err)
       }
-      getlongcomments(movie, null, function (err, movie) {
+      let $ = cheerio.load(data.body)
+      let arr = Array.from($("div[id^='collect_form_']"));
+      for (let value of arr) {
+        urls.push("https://movie.douban.com/subject/" + value.attribs.id.split('_')[2] + "/")
+      }
+      let channel = "tag"
+      hasnext($, channel, urls, cb, function (err, urls, nexturl, cb) {
         if (err) {
-          console.log(err)
+          console.log("getshortcomments is err:" + err)
         }
-        getawards(movie, function (err, movie) {
+        if (nexturl) {
+          geturls(null, urls, nexturl, cb)
+        } else {
+          cb(null, urls)
+        }
+      })
+    })
+  }, 2000);
+}
+
+/**
+ * eachSeries的执行函数
+ */
+function dojumu(value, callback) {
+  console.log("进入dojumu")
+  let url, info
+  //判断,如果value是url的话,分割后长度小于二,否则就是研究文件的分割
+  if (value.split('\t').length < 2) {
+    url = value
+  } else {
+    info = value.split('\t')
+    url = info[2]
+  }
+  console.log(url)
+  if (url === "") {
+    console.log("豆瓣没有该剧目")
+    let movie = {
+      istarget: true,
+      target_name: info[1],
+      target_id: info[0],
+      key_words: info.splice(3),
+    }
+    console.log(movie.target_name)
+    //保存
+    let jumu_movie = new Jumu(movie)
+    jumu_movie.save(function (err) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log("文件已保存1")
+      }
+      callback(null)
+    })
+  } else {
+    console.log("存在豆瓣链接")
+    Jumu.findOne({ url: url }, function (err, result) {
+      if (err) {
+        console.log(err)
+      }
+      if (result) {
+        console.log("剧目已经存在")
+        result.istarget = true
+        // console.log(result)
+        Jumu.create(result, function (err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log("文件已保存2")
+          }
+          callback(null)
+        })
+      } else {
+        console.log("剧目不存在,正在爬取")
+        getinfo(url, function (err, movie) {
+          console.log("基本信息已完成")
           if (err) {
             console.log(err)
           }
-          getpics(movie, null, function (err, movie) {
+          getshortcomments(movie, null, function (err, movie) {
+            console.log("短评已经完成")
             if (err) {
               console.log(err)
             }
-            console.log(movie)
-            callback(null)
+            getlongcomments(movie, null, function (err, movie) {
+              console.log("影评已经完成")
+              if (err) {
+                console.log(err)
+              }
+              getawards(movie, function (err, movie) {
+                console.log("获奖情况已经完成")
+                if (err) {
+                  console.log(err)
+                }
+                getpics(movie, null, function (err, movie) {
+                  console.log("图片已经完成")
+                  if (err) {
+                    console.log(err)
+                  }
+                  movie.istarget = true
+                  Jumu.create(movie, function (err) {
+                    if (err) {
+                      console.log(err)
+                    } else {
+                      console.log("文件已保存3")
+                    }
+                    callback(null)
+                  })
+                  // console.log(movie)
+                  // callback(null)
+                })
+              })
+            })
           })
         })
-      })
+      }
+    })
+  }
+}
+/**
+ * 用来爬取豆瓣十年剧目的函数,数组是年份
+ */
+
+function dodouban(year, urls, callback) {
+  geturls(year, urls, function (err, urls) {
+    if (err) {
+      console.log(err)
+    }
+    async.eachSeries(urls, dojumu, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log("一年豆瓣已经爬完")
+      callback(null)
     })
   })
+
 }
 
-
-let urls = ["https://movie.douban.com/subject/3804629/"]
-
-async.eachSeries(urls, Do, function (err) {
+/**
+ * 读取文件,将文件按行分割
+ */
+fs.readFile('jumu.csv', function (err, data) {
   if (err) {
     console.log(err)
   }
-  console.log("运行完成")
+  if (data !== "") {
+    console.log("文件不为空")
+    let objs = data.toString().split('\n')
+    async.eachSeries(objs, dojumu, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log("运行完成")
+    })
+  }
 })
+
+/**
+ *这是爬豆瓣全部剧目部分的
+ */
+
+// let endyear = 2016
+// let years
+// for (let year = 2006; year > 2016; year++) {
+//   years.push(year)
+// }
+// let urls = []
+//  运行时一定要把判断是否已存在中的movie.istarget=true去掉
+// async.eachSeries(years, dodouban, function (err) {
+//   if (err) {
+//     console.log(err)
+//   }
+//   console.log("10年豆瓣已经爬完")
+// })

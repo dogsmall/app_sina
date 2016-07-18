@@ -7,7 +7,7 @@ var request = require('request').defaults({
     jar: true
 })
 var cheerio = require('cheerio')
-var Jumu = require('./models/jumu.js')
+
 
 
 // let list = []
