@@ -219,7 +219,7 @@ function getpics(movie, nexturl, cb) {
       })
 
     })
-  }, 2000);
+  }, 1000);
 
 }
 
@@ -274,7 +274,7 @@ function getlongcomments(movie, nexturl, cb) {
             }
             movie.longcomments.push(filmrev)
           })
-        }, i * 2000);
+        }, i * 1000);
       }
       let channel = "reviews"
       hasnext($, channel, movie, cb, function (err, movie, nexturl, cb) {
@@ -289,7 +289,7 @@ function getlongcomments(movie, nexturl, cb) {
         }
       })
     })
-  }, 45000)
+  }, 25000)
 
 }
 
@@ -358,7 +358,7 @@ function getshortcomments(movie, nexturl, cb) {
         }
       })
     })
-  }, 5000);
+  }, 1000);
 
 }
 
@@ -589,11 +589,6 @@ function dodouban(year, callback) {
  *这是爬豆瓣全部剧目部分的
  */
 
-let endyear = 2016
-for (let year = 2006; year > 2016; year++) {
-  years.push(year)
-  console.log(year)
-}
 //  运行时一定要把判断是否已存在中的movie.istarget=true去掉
 let years = [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016]
 async.eachSeries(years, dodouban, function (err) {
