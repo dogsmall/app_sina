@@ -404,6 +404,7 @@ function hasnext($, channel, movie, cb, callback) {
  * 获取一年的所有豆瓣剧目url
  */
 function geturls(year, urls, nexturl, cb) {
+  console.log(urls)
   let options
   if (nexturl) {
     options = nexturl
@@ -417,6 +418,7 @@ function geturls(year, urls, nexturl, cb) {
     }
   }
   setTimeout(function () {
+    console.log(options)
     request(options, function (err, data) {
       if (err) {
         console.log(err)
@@ -482,7 +484,7 @@ function dojumu(value, callback) {
       }
       if (result) {
         console.log("剧目已经存在")
-        result.istarget = true
+        // result.istarget = true
         // console.log(result)
         Jumu.create(result, function (err) {
           if (err) {
@@ -542,9 +544,11 @@ function dojumu(value, callback) {
 /**
  * 用来爬取豆瓣十年剧目的函数,数组是年份
  */
+let urls = []
 
-function dodouban(year, urls, callback) {
-  geturls(year, urls, function (err, urls) {
+function dodouban(year, callback) {
+  let urls = []
+  geturls(year, urls,null,function (err, urls) {
     if (err) {
       console.log(err)
     }
@@ -555,6 +559,9 @@ function dodouban(year, urls, callback) {
       console.log("一年豆瓣已经爬完")
       callback(null)
     })
+
+    
+
   })
 
 }
@@ -562,36 +569,36 @@ function dodouban(year, urls, callback) {
 /**
  * 读取文件,将文件按行分割
  */
-fs.readFile('jumu.csv', function (err, data) {
-  if (err) {
-    console.log(err)
-  }
-  if (data !== "") {
-    console.log("文件不为空")
-    let objs = data.toString().split('\n')
-    async.eachSeries(objs, dojumu, function (err) {
-      if (err) {
-        console.log(err)
-      }
-      console.log("运行完成")
-    })
-  }
-})
+// fs.readFile('jumu.csv', function (err, data) {
+//   if (err) {
+//     console.log(err)
+//   }
+//   if (data !== "") {
+//     console.log("文件不为空")
+//     let objs = data.toString().split('\n')
+//     async.eachSeries(objs, dojumu, function (err) {
+//       if (err) {
+//         console.log(err)
+//       }
+//       console.log("运行完成")
+//     })
+//   }
+// })
 
 /**
  *这是爬豆瓣全部剧目部分的
  */
 
-// let endyear = 2016
-// let years
-// for (let year = 2006; year > 2016; year++) {
-//   years.push(year)
-// }
-// let urls = []
+let endyear = 2016
+for (let year = 2006; year > 2016; year++) {
+  years.push(year)
+  console.log(year)
+}
 //  运行时一定要把判断是否已存在中的movie.istarget=true去掉
-// async.eachSeries(years, dodouban, function (err) {
-//   if (err) {
-//     console.log(err)
-//   }
-//   console.log("10年豆瓣已经爬完")
-// })
+let years = [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016]
+async.eachSeries(years, dodouban, function (err) {
+  if (err) {
+    console.log(err)
+  }
+  console.log("10年豆瓣已经爬完")
+})
