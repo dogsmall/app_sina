@@ -459,22 +459,32 @@ function dojumu(value, callback) {
   console.log(url)
   if (url === "") {
     console.log("豆瓣没有该剧目")
-    let movie = {
-      istarget: true,
-      target_name: info[1],
-      target_id: info[0],
-      key_words: info.splice(3),
-    }
-    console.log(movie.target_name)
-    //保存
-    let jumu_movie = new Jumu(movie)
-    jumu_movie.save(function (err) {
+    Jumu.findOne({ target_name: info[1] }, function (err, result) {
       if (err) {
         console.log(err)
-      } else {
-        console.log("文件已保存1")
       }
-      callback(null)
+      if (result) {
+        console.log("文件已存在")
+        callback(null)
+      } else {
+        let movie = {
+          istarget: true,
+          target_name: info[1],
+          target_id: info[0],
+          key_words: info.splice(3),
+        }
+        console.log(movie.target_name)
+        //保存
+        let jumu_movie = new Jumu(movie)
+        jumu_movie.save(function (err) {
+          if (err) {
+            console.log(err)
+          } else {
+            console.log("文件已保存1")
+          }
+          callback(null)
+        })
+      }
     })
   } else {
     console.log("存在豆瓣链接")
@@ -485,6 +495,9 @@ function dojumu(value, callback) {
       if (result) {
         console.log("剧目已经存在")
         // result.istarget = true
+        // result.target_id = info[0]
+        // result.target_name = info[1]
+        // result.key_words = info.splice(3)
         // console.log(result)
         Jumu.create(result, function (err) {
           if (err) {
@@ -496,6 +509,7 @@ function dojumu(value, callback) {
         })
       } else {
         console.log("剧目不存在,正在爬取")
+        console.log(url)
         getinfo(url, function (err, movie) {
           console.log("基本信息已完成")
           if (err) {
@@ -521,7 +535,10 @@ function dojumu(value, callback) {
                   if (err) {
                     console.log(err)
                   }
-                  movie.istarget = true
+                  // movie.istarget = true
+                  // movie.target_id = info[0]
+                  // movie.target_name = info[1]
+                  // movie.key_words = info.splice(3)
                   Jumu.create(movie, function (err) {
                     if (err) {
                       console.log(err)
@@ -548,7 +565,7 @@ let urls = []
 
 function dodouban(year, callback) {
   let urls = []
-  geturls(year, urls,null,function (err, urls) {
+  geturls(year, urls, null, function (err, urls) {
     if (err) {
       console.log(err)
     }
@@ -559,11 +576,7 @@ function dodouban(year, callback) {
       console.log("一年豆瓣已经爬完")
       callback(null)
     })
-
-    
-
   })
-
 }
 
 /**
