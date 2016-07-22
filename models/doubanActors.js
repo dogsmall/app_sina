@@ -5,5 +5,5 @@ var Doubanactors = new schema({
     doubanId :String,
     name:String, 
 })
-mongoose.connect('mongodb://localhost/film')
+mongoose.createConnection('mongodb://localhost/tarantula')
 module.exports = mongoose.model('doubanActors', Doubanactors)

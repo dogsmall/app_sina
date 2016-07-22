@@ -1,7 +1,7 @@
 var mongoose = require('mongoose')
 var schema = mongoose.Schema
 
-var doubanReview = new schema({
+var DoubanReview = new schema({
     objectId :String,// film表中该剧目的_id
     title:String, // 影评名
     authorName :String,//作者名字
@@ -13,5 +13,5 @@ var doubanReview = new schema({
     agree:Number, // 赞同人数
     disagree:Number //反对人数
 })
-mongoose.connect('mongodb://localhost/film')
-module.exports = mongoose.model('doubanReview', Doubanreview)
+mongoose.createConnection('mongodb://localhost/tarantula')
+module.exports = mongoose.model('doubanReview', DoubanReview)

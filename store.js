@@ -60,15 +60,17 @@ fs.readFile('jumu.csv', function (err, data) {
         // console.log(item)
     })
 
-    console.log(items)
+    // console.log(items)
 
     items.forEach(function (item) {
         Jumu.findOne({url:item.doubanUrl,name:item.targetName},function (err,result) {
+            console.log(result)
             let objectId = result._id
             let name = result.name.split('\t')[0]
             let doubanId = result.url.split('/')[-1]
             let targetId = item.targetId
             let keywords = item.keywords
+            let category = item.category
             let doubanTags = result.tags
             let moviePic = result.moviePic
             let year = result.year.match("/（(.*)）/")

@@ -11,9 +11,9 @@
     "event-stream": "^3.3.2",
     "fs": "^0.0.2",
     "jquery": "^3.0.0",
-    "line-reader": "^0.4.0",
     "jsdom": "^9.2.1",
-    "mongoose": "^4.5.3",
+    "line-reader": "^0.4.0",
+    "mongoose": "^4.5.5",
     "request": "^2.72.0"
   },
   "devDependencies": {},
