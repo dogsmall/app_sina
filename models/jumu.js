@@ -28,4 +28,4 @@ var jumuMovie = new schema({
     awards:[], //获奖情况
 })
 mongoose.connect('mongodb://localhost/tarantula')
-module.exports = mongoose.model('jumu2', jumuMovie)
+module.exports = mongoose.model('jumu1', jumuMovie)

@@ -440,7 +440,7 @@ function geturls(year, urls, nexturl, cb) {
         }
       })
     })
-  }, 2000);
+  }, 5000);
 }
 
 /**
