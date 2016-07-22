@@ -6,13 +6,8 @@
   "dependencies": {
     "async": "^2.0.0-rc.6",
     "cheerio": "^0.20.0",
-    "csv": "^0.4.6",
-    "d3": "^4.0.0-alpha.35",
     "event-stream": "^3.3.2",
     "fs": "^0.0.2",
-    "jquery": "^3.0.0",
-    "jsdom": "^9.2.1",
-    "line-reader": "^0.4.0",
     "mongoose": "^4.5.5",
     "request": "^2.72.0"
   },

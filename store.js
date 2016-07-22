@@ -64,7 +64,7 @@ fs.readFile('jumu.csv', function (err, data) {
 
     items.forEach(function (item) {
         // console.log(item)
-        Jumu.findOne({ url: item.doubanUrl, name: item.targetName }, function (err, result) {
+        Jumu.findOne({ url: item.doubanUrl, target_name: item.targetName }, function (err, result) {
             if (err) {
                 console.log(err)
             }
@@ -78,12 +78,11 @@ fs.readFile('jumu.csv', function (err, data) {
                 let category = item.category
                 let doubanTags = result.tags
                 let moviePic = result.moviePic
-                let year = result.year.substring(1,5)
+                let year = result.year.substring(1, 5)
                 let doubanTypes = result.types
                 let releaseDate = []
                 result.releaseDate.map(function (e) {
-
-                    let date = e.time.substring(0,10)
+                    let date = e.time.substring(0, 10)
                     let addr = e.time.substring(10)
                     releaseDate.push({ date: date, addr: addr })
                 })
@@ -118,7 +117,36 @@ fs.readFile('jumu.csv', function (err, data) {
                     awards: awards
                 }
                 console.log(film)
-            }else{
+                result.longcomments.map(function (e) {
+                    let review = {
+                        objectId: objectId,// film表中该剧目的_id
+                        title: e.title, // 影评名
+                        authorName: e.author.name,//作者名字
+                        authorUrl: e.author.url, //作者url
+                        authorImg: e.author.imgurl, // 作者头像地址
+                        date: e.time, // 影评发表日期
+                        content: e.content, // 内容
+                        grade: e.grade, // 对剧目的评价 eg. 推荐,一般
+                        agree: e.agree, // 赞同人数
+                        disagree: e.disagree //反对人数
+                    }
+                    console.log(review)
+                })
+
+                result.shortcomments.map(function (e) {
+                    let comment = {
+                        objectId: objectId,// film表中该剧目的_id
+                        authorName: e.name,// 发表评论的作者名
+                        authorUrl: e.nameurl,// 作者的地址
+                        authorImg: e.picurl, // 作者的头像地址
+                        date: e.time,// 发表时间
+                        content: e.content,// 评论内容
+                        grade: e.grade, //对电影的等级评价 eg. 一般 推荐 极差
+                        agree: e.agree, //赞同人数
+                    }
+                    console.log(comment)
+                })
+            } else {
                 console.log(item.doubanUrl)
                 console.log(item.targetName)
                 console.log("没有找到剧目")

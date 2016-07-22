@@ -139,7 +139,7 @@ function getinfo(url, callback) {
       }
       callback(null, movie)
     })
-  }, 1000)
+  }, 2000)
 }
 
 /**
@@ -274,7 +274,7 @@ function getlongcomments(movie, nexturl, cb) {
             }
             movie.longcomments.push(filmrev)
           })
-        }, i * 1000);
+        }, i * 2000);
       }
       let channel = "reviews"
       hasnext($, channel, movie, cb, function (err, movie, nexturl, cb) {
@@ -289,7 +289,7 @@ function getlongcomments(movie, nexturl, cb) {
         }
       })
     })
-  }, 25000)
+  }, 45000)
 
 }
 
@@ -358,7 +358,7 @@ function getshortcomments(movie, nexturl, cb) {
         }
       })
     })
-  }, 1000);
+  }, 2000);
 
 }
 
@@ -494,10 +494,10 @@ function dojumu(value, callback) {
       }
       if (result) {
         console.log("剧目已经存在")
-        // result.istarget = true
-        // result.target_id = info[0]
-        // result.target_name = info[1]
-        // result.key_words = info.splice(3)
+        result.istarget = true
+        result.target_id = info[0]
+        result.target_name = info[1]
+        result.key_words = info.splice(3)
         // console.log(result)
         Jumu.create(result, function (err) {
           if (err) {
@@ -535,10 +535,10 @@ function dojumu(value, callback) {
                   if (err) {
                     console.log(err)
                   }
-                  // movie.istarget = true
-                  // movie.target_id = info[0]
-                  // movie.target_name = info[1]
-                  // movie.key_words = info.splice(3)
+                  movie.istarget = true
+                  movie.target_id = info[0]
+                  movie.target_name = info[1]
+                  movie.key_words = info.splice(3)
                   Jumu.create(movie, function (err) {
                     if (err) {
                       console.log(err)
