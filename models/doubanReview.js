@@ -13,5 +13,5 @@ var doubanReview = new schema({
     agree:Number, // 赞同人数
     disagree:Number //反对人数
 })
-mongoose.connect('mongodb://localhost/tarantula')
+mongoose.connect('mongodb://localhost/film')
 module.exports = mongoose.model('doubanReview', Doubanreview)

@@ -27,5 +27,5 @@ var Film = new schema({
   pics: Array, //图片
   awards: Array, //获奖情况
 })
-mongoose.connect('mongodb://localhost/tarantula')
+mongoose.connect('mongodb://localhost/film')
 module.exports = mongoose.model('film', Film)

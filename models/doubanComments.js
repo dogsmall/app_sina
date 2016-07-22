@@ -11,5 +11,5 @@ var doubanComments = new schema({
     grade:String, //对电影的等级评价 eg. 一般 推荐 极差
     agree:Number, //赞同人数
 })
-mongoose.connect('mongodb://localhost/tarantula')
+mongoose.connect('mongodb://localhost/film')
 module.exports = mongoose.model('doubanComments', Doubancomments)
