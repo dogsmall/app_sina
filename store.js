@@ -5,10 +5,10 @@ var request = require('request').defaults({
 var cheerio = require('cheerio')
 var fs = require('fs')
 var async = require('async')
-// var Jumu = require('./models/jumu.js')
-// var DoubanActors = require('./models/doubanActors')
-// var DoubanComments = require('./models/doubanComments')
-// var DoubanReview = require('./models/doubanReview')
+var Jumu = require('./models/jumu.js')
+var DoubanActors = require('./models/doubanActors')
+var DoubanComments = require('./models/doubanComments')
+var DoubanReview = require('./models/doubanReview')
 
 //匹配时间的正则 ^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$
 
