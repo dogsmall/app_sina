@@ -63,55 +63,67 @@ fs.readFile('jumu.csv', function (err, data) {
     // console.log(items)
 
     items.forEach(function (item) {
-        Jumu.findOne({url:item.doubanUrl,name:item.targetName},function (err,result) {
-            console.log(result)
-            let objectId = result._id
-            let name = result.name.split('\t')[0]
-            let doubanId = result.url.split('/')[-1]
-            let targetId = item.targetId
-            let keywords = item.keywords
-            let category = item.category
-            let doubanTags = result.tags
-            let moviePic = result.moviePic
-            let year = result.year.match("/（(.*)）/")
-            let doubanTypes = result.types
-            let releaseDate =[]
-            result.releaseDate.map(function(e){
-                
-                let date = e.time.match("/^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$/")
-                let addr = e.time.match("/(.*)/")
-                releaseDate.push({date:date,addr:addr})
-            })
-            let duration = result.runtime
-            let rank = result.average
-            let rankCount = result.people
-            let betterThan = result.betterThan
-            let intro = result.synopsis
-            let stars = result.stars
-            let pics = result.pics
-            let awards = result.awards 
-            let film = {
-                objectId:objectId,
-                doubanId:doubanId,
-                name:name,
-                targetId : targetId,
-                category:category,
-                keywords:keywords,
-                doubanTags:doubanTags,
-                moviePic:moviePic,
-                year:year,
-                doubanTypes:doubanTypes,
-                releaseDate:releaseDate,
-                duration:duration,
-                rank:rank,
-                rankCount:rank,
-                betterThan:betterThan,
-                intro:intro,
-                stars:stars,
-                pics:pics,
-                awards:awards
+        // console.log(item)
+        Jumu.findOne({ url: item.doubanUrl, name: item.targetName }, function (err, result) {
+            if (err) {
+                console.log(err)
             }
-            console.log(film)
+            if (result) {
+                // console.log(result)
+                let objectId = result._id
+                let name = result.name.split('\t')[0]
+                let doubanId = result.url
+                let targetId = item.targetId
+                let keywords = item.keywords
+                let category = item.category
+                let doubanTags = result.tags
+                let moviePic = result.moviePic
+                let year = result.year.substring(1,5)
+                let doubanTypes = result.types
+                let releaseDate = []
+                result.releaseDate.map(function (e) {
+
+                    let date = e.time.substring(0,10)
+                    let addr = e.time.substring(10)
+                    releaseDate.push({ date: date, addr: addr })
+                })
+                // console.log(releaseDate)
+                let duration = result.runtime
+                let rank = result.average
+                let rankCount = result.people
+                let betterThan = result.betterThan
+                let intro = result.synopsis
+                let stars = result.stars
+                let pics = result.pics
+                let awards = result.awards
+                let film = {
+                    objectId: objectId,
+                    doubanId: doubanId,
+                    name: name,
+                    targetId: targetId,
+                    category: category,
+                    keywords: keywords,
+                    doubanTags: doubanTags,
+                    moviePic: moviePic,
+                    year: year,
+                    doubanTypes: doubanTypes,
+                    releaseDate: releaseDate,
+                    duration: duration,
+                    rank: rank,
+                    rankCount: rank,
+                    betterThan: betterThan,
+                    intro: intro,
+                    stars: stars,
+                    // pics: pics,
+                    awards: awards
+                }
+                console.log(film)
+            }else{
+                console.log(item.doubanUrl)
+                console.log(item.targetName)
+                console.log("没有找到剧目")
+            }
+
         })
     })
 })
