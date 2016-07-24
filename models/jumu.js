@@ -28,4 +28,4 @@ var jumuMovie = new schema({
     awards:Array, //获奖情况
 })
 mongoose.connect('mongodb://localhost/gsw')
-module.exports = mongoose.model('jumu', jumuMovie)
+module.exports = mongoose.model('test', jumuMovie)

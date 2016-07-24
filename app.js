@@ -558,7 +558,7 @@ function dojumu(value, callback) {
 /**
  * 读取文件,将文件按行分割
  */
-fs.readFile('jumu.csv', function (err, data) {
+fs.readFile('test.csv', function (err, data) {
   if (err) {
     console.log(err)
   }
