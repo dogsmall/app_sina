@@ -2,10 +2,10 @@ var mongoose = require('mongoose')
 var schema = mongoose.Schema
 
 var jumuMovie = new schema({
-    istarget:Boolean, //是否为研究需要剧目,如果是true,否则false
+    // istarget:Boolean, //是否为研究需要剧目,如果是true,否则false
     url:String, // 豆瓣url
     name:String, //豆瓣名字
-    target_id: String, //研究文件id
+    category: String, //研究文件类型
     target_name: String, //研究文件name
     key_words: String, //研究关键字
     tags: Array, // 豆瓣成员常用的标签
@@ -24,8 +24,8 @@ var jumuMovie = new schema({
     stars: Array, //得分分数分布
     longcomments:Array, //影评
     shortcomments:Array,//短评
-    pics:[], //图片
-    awards:[], //获奖情况
+    pics:Array, //图片
+    awards:Array, //获奖情况
 })
-mongoose.connect('mongodb://localhost/tarantula')
-module.exports = mongoose.model('jumu1', jumuMovie)
+mongoose.connect('mongodb://localhost/gsw')
+module.exports = mongoose.model('jumu', jumuMovie)

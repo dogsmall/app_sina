@@ -5,8 +5,8 @@ var Film = new schema({
   objectId: String,
   doubanId: String, // 豆瓣id #i
   name: String, //豆瓣名字 #i
-  targetId: String, //研究文件id
-  category: Number,  // #i 类别「 1 电影 2 电视剧，3 网剧 4 民生、新闻节目 5 综艺 」
+  // targetId: String, //研究文件id
+  category: String,  // #i 类别「 1 电影 2 电视剧，3 网剧 4 民生、新闻节目 5 综艺 」
   keywords: Array, //研究关键字 
   doubanTags: Array, // 豆瓣成员常用的标签
   moviePic: String, //豆瓣剧目头像url

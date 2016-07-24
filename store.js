@@ -22,10 +22,6 @@ fs.readFile('jumu.csv', function (err, data) {
     objs.map(function (e) {
         let value = e.split('\t')
         let item = {}
-
-        // 研究id
-        item.targetId = value[0]
-
         // 研究剧目名
         item.targetName = value[1]
 
@@ -33,20 +29,7 @@ fs.readFile('jumu.csv', function (err, data) {
         item.doubanUrl = value[2]
 
         // 类型
-        if (value[0] >= 1000 && value[0] < 2000) {
-            item.category = 1
-        } else if (value[0] >= 2000 && value[0] < 3000) {
-            item.category = 2
-        } else if (value[0] >= 3000 && value[0] < 4000) {
-            item.category = 3
-        } else if (value[0] >= 4000 && value[0] < 5000) {
-            item.category = 4
-        } else if (value[0] >= 5000 && value[0] < 6000) {
-            item.category = 5
-        } else {
-            item.category = 6
-        }
-
+        item.category = value[0]
         // 关键词处理
 
         item.keywords = []
@@ -57,22 +40,19 @@ fs.readFile('jumu.csv', function (err, data) {
             }
         })
         items.push(item)
-        // console.log(item)
     })
-
-    // console.log(items)
 
     items.forEach(function (item) {
         // console.log(item)
-        Jumu.findOne({ url: item.doubanUrl, target_name: item.targetName }, function (err, result) {
+        Jumu.findOne({target_name: item.targetName }, function (err, result) {
             if (err) {
                 console.log(err)
             }
             if (result) {
                 // console.log(result)
                 let objectId = result._id
-                let name = result.name.split('\t')[0]
-                let doubanId = result.url
+                let name = result.target_name
+                let doubanId = result.url.split('/')[4]
                 let targetId = item.targetId
                 let keywords = item.keywords
                 let category = item.category

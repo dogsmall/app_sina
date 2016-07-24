@@ -28,12 +28,10 @@ function getinfo(url, callback) {
       }
       let $ = cheerio.load(data.body)
       let movie = {
-        //是否是研究目标
-        istarget: false,
         // 豆瓣url
         url: url,
         //豆瓣电影名
-        name: $('#content > h1 > span[property="v:itemreviewed"]').text().split('\t')[0],
+        // name: $('#content > h1 > span[property="v:itemreviewed"]').text().split('\t')[0],
         //头像图片地址
         moviePic: $("#mainpic > a > img").attr('src'),
         //分类年份
@@ -58,7 +56,6 @@ function getinfo(url, callback) {
               name_id: value.attribs.href.split('/')[2]
             })
           }
-
           return results
         })(),
         //演员
@@ -219,7 +216,7 @@ function getpics(movie, nexturl, cb) {
       })
 
     })
-  }, 1000);
+  }, 2000);
 
 }
 
@@ -450,12 +447,8 @@ function dojumu(value, callback) {
   console.log("进入dojumu")
   let url, info
   //判断,如果value是url的话,分割后长度小于二,否则就是研究文件的分割
-  if (value.split('\t').length < 2) {
-    url = value
-  } else {
-    info = value.split('\t')
-    url = info[2]
-  }
+  info = value.split('\t')
+  url = info[2]
   console.log(url)
   if (url === "") {
     console.log("豆瓣没有该剧目")
@@ -468,15 +461,13 @@ function dojumu(value, callback) {
         callback(null)
       } else {
         let movie = {
-          istarget: true,
           target_name: info[1],
-          target_id: info[0],
+          category: info[0],
           key_words: info.splice(3),
         }
         console.log(movie.target_name)
         //保存
-        let jumu_movie = new Jumu(movie)
-        jumu_movie.save(function (err) {
+        Jumu.create(movie,function (err) {
           if (err) {
             console.log(err)
           } else {
@@ -494,19 +485,7 @@ function dojumu(value, callback) {
       }
       if (result) {
         console.log("剧目已经存在")
-        result.istarget = true
-        result.target_id = info[0]
-        result.target_name = info[1]
-        result.key_words = info.splice(3)
-        // console.log(result)
-        Jumu.create(result, function (err) {
-          if (err) {
-            console.log(err)
-          } else {
-            console.log("文件已保存2")
-          }
-          callback(null)
-        })
+        callback(null)
       } else {
         console.log("剧目不存在,正在爬取")
         console.log(url)
@@ -535,9 +514,8 @@ function dojumu(value, callback) {
                   if (err) {
                     console.log(err)
                   }
-                  movie.istarget = true
-                  movie.target_id = info[0]
                   movie.target_name = info[1]
+                  movie.category = info[0]
                   movie.key_words = info.splice(3)
                   Jumu.create(movie, function (err) {
                     if (err) {
@@ -547,8 +525,6 @@ function dojumu(value, callback) {
                     }
                     callback(null)
                   })
-                  // console.log(movie)
-                  // callback(null)
                 })
               })
             })
@@ -561,52 +537,52 @@ function dojumu(value, callback) {
 /**
  * 用来爬取豆瓣十年剧目的函数,数组是年份
  */
-let urls = []
+// let urls = []
 
-function dodouban(year, callback) {
-  let urls = []
-  geturls(year, urls, null, function (err, urls) {
-    if (err) {
-      console.log(err)
-    }
-    async.eachSeries(urls, dojumu, function (err) {
-      if (err) {
-        console.log(err)
-      }
-      console.log("一年豆瓣已经爬完")
-      callback(null)
-    })
-  })
-}
+// function dodouban(year, callback) {
+//   let urls = []
+//   geturls(year, urls, null, function (err, urls) {
+//     if (err) {
+//       console.log(err)
+//     }
+//     async.eachSeries(urls, dojumu, function (err) {
+//       if (err) {
+//         console.log(err)
+//       }
+//       console.log("一年豆瓣已经爬完")
+//       callback(null)
+//     })
+//   })
+// }
 
 /**
  * 读取文件,将文件按行分割
  */
-// fs.readFile('jumu.csv', function (err, data) {
-//   if (err) {
-//     console.log(err)
-//   }
-//   if (data !== "") {
-//     console.log("文件不为空")
-//     let objs = data.toString().split('\n')
-//     async.eachSeries(objs, dojumu, function (err) {
-//       if (err) {
-//         console.log(err)
-//       }
-//       console.log("运行完成")
-//     })
-//   }
-// })
+fs.readFile('jumu.csv', function (err, data) {
+  if (err) {
+    console.log(err)
+  }
+  if (data !== "") {
+    console.log("文件不为空")
+    let objs = data.toString().split('\n')
+    async.eachSeries(objs, dojumu, function (err) {
+      if (err) {
+        console.log(err)
+      }
+      console.log("运行完成")
+    })
+  }
+})
 
 /**
  *这是爬豆瓣全部剧目部分的
  */
 
 //  运行时一定要把判断是否已存在中的movie.istarget=true去掉
-let years = [2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016]
-async.eachSeries(years, dodouban, function (err) {
-  if (err) {
-    console.log(err)
-  }
-  console.log("10年豆瓣已经爬完")
-})
+// let years = [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016]
+// async.eachSeries(years, dodouban, function (err) {
+//   if (err) {
+//     console.log(err)
+//   }
+//   console.log("10年豆瓣已经爬完")
+// })
