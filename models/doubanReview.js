@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 var schema = mongoose.Schema
 
 var DoubanReview = new schema({
-    objectId :String,// film表中该剧目的_id
+    filmId :String,// film表中该剧目的_id
     title:String, // 影评名
     authorName :String,//作者名字
     authorUrl:String, //作者url
@@ -14,4 +14,4 @@ var DoubanReview = new schema({
     disagree:Number //反对人数
 })
 mongoose.createConnection('mongodb://localhost/gsw')
-module.exports = mongoose.model('doubanReview', DoubanReview)
+module.exports = mongoose.model('douban_reviews', DoubanReview)

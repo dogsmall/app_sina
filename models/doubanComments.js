@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 var schema = mongoose.Schema
 
 var DoubanComments = new schema({
-    objectId :String,// film表中该剧目的_id
+    filmId :String,// film表中该剧目的_id
     authorName :String,// 发表评论的作者名
     authorUrl:String,// 作者的地址
     authorImg:String, // 作者的头像地址
@@ -12,4 +12,4 @@ var DoubanComments = new schema({
     agree:Number, //赞同人数
 })
 mongoose.createConnection('mongodb://localhost/gsw')
-module.exports = mongoose.model('doubanComments', DoubanComments)
+module.exports = mongoose.model('douban_comments', DoubanComments)

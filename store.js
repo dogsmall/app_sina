@@ -10,7 +10,8 @@ var DoubanActors = require('./models/doubanActors.js')
 var DoubanComments = require('./models/doubanComments.js')
 var DoubanReview = require('./models/doubanReview.js')
 var Film = require('./models/film.js')
-
+var crypto = require('crypto')
+//crypto.createHash('md5').update(name+doubanId).digest('hex')
 //匹配时间的正则 ^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$
 
 fs.readFile('test.csv', function (err, data) {
@@ -49,7 +50,7 @@ fs.readFile('test.csv', function (err, data) {
             }
             if (result) {
                 // console.log(result)
-                let objectId = result._id
+                let _Id = result._id
                 let name = result.target_name
                 let doubanId = result.url.split('/')[4]
                 // let targetId = item.targetId
@@ -57,16 +58,17 @@ fs.readFile('test.csv', function (err, data) {
                 let category = item.category
                 let doubanTags = result.tags
                 let moviePic = result.moviePic
-                let year = result.year.substring(1, 5)
+                let year = parseInt(result.year.substring(1, 5))
                 let doubanTypes = result.types
                 let releaseDate = []
                 result.releaseDate.map(function (e) {
-                    let date = e.time.substring(0, 10)
+                    // console.log(e.time.substring(0, 10))
+                    let date = (e.time.substring(0, 10) !== "") ? Date(e.time.substring(0, 10)) : -1
                     let addr = e.time.substring(10)
                     releaseDate.push({ date: date, addr: addr })
                 })
                 // console.log(releaseDate)
-                let duration = result.runtime
+                let duration = result.runtime !== "" ? parseInt(result.runtime) : -1
                 let rank = result.average
                 let rankCount = result.people
                 let betterThan = result.betterThan
@@ -74,13 +76,30 @@ fs.readFile('test.csv', function (err, data) {
                 let stars = result.stars
                 let pics = result.pics
                 let awards = result.awards
+                let screenwriterIds = []
+                result.screenwriters.forEach(function (e) {
+                    let id = crypto.createHash('md5').update(e.name + e.name_id).digest('hex')
+                    screenwriterIds.push(id)
+                });
+                let directorIds = []
+                result.directors.forEach(function (e) {
+                    let id = crypto.createHash('md5').update(e.name + e.name_id).digest('hex')
+                    directorIds.push(id)
+                })
+                let artistIds = []
+                result.actors.forEach(function (e) {
+                    let id = crypto.createHash('md5').update(e.name + e.name_id).digest('hex')
+                    artistIds.push(id)
+                })
                 let film = {
-                    objectId: objectId,
+                    _id: _Id,
                     doubanId: doubanId,
                     name: name,
-                    // targetId: targetId,
                     category: category,
                     keywords: keywords,
+                    directorIds: directorIds, //导演 #i
+                    screenwriterIds: screenwriterIds, //编剧 #i
+                    artistIds: artistIds, //演员 #i   
                     doubanTags: doubanTags,
                     moviePic: moviePic,
                     year: year,
@@ -95,7 +114,7 @@ fs.readFile('test.csv', function (err, data) {
                     pics: pics,
                     awards: awards
                 }
-                console.log(film)
+                // console.log(film)
                 Film.create(film, function (err) {
                     if (err) {
                         console.log(err)
@@ -103,18 +122,18 @@ fs.readFile('test.csv', function (err, data) {
                 })
                 result.longcomments.map(function (e) {
                     let review = {
-                        objectId: objectId,// film表中该剧目的_id
+                        filmId: _Id,// film表中该剧目的_id
                         title: e.title, // 影评名
                         authorName: e.author.name,//作者名字
                         authorUrl: e.author.url, //作者url
                         authorImg: e.author.imgurl, // 作者头像地址
-                        date: e.time, // 影评发表日期
+                        date: (e.time !== "") ? Date(e.time) : -1, // 影评发表日期
                         content: e.content, // 内容
                         grade: e.grade, // 对剧目的评价 eg. 推荐,一般
-                        agree: e.agree, // 赞同人数
-                        disagree: e.disagree //反对人数
+                        agree: e.agree !== "" ? parseInt(e.agree) : -1, // 赞同人数
+                        disagree: e.disagree !== "" ? parseInt(e.disagree) : -1 //反对人数
                     }
-                    console.log(review)
+                    // console.log(review)
                     DoubanReview.create(review, function (err) {
                         if (err) {
                             console.log(err)
@@ -124,16 +143,16 @@ fs.readFile('test.csv', function (err, data) {
 
                 result.shortcomments.map(function (e) {
                     let comment = {
-                        objectId: objectId,// film表中该剧目的_id
+                        filmId: _Id,// film表中该剧目的_id
                         authorName: e.name,// 发表评论的作者名
                         authorUrl: e.nameurl,// 作者的地址
                         authorImg: e.picurl, // 作者的头像地址
-                        date: e.time,// 发表时间
+                        date: (e.time !== "") ? Date(e.time) : -1,// 发表时间
                         content: e.content,// 评论内容
                         grade: e.grade, //对电影的等级评价 eg. 一般 推荐 极差
-                        agree: e.agree, //赞同人数
+                        agree: e.agree !== "" ? parseInt(e.agree) : -1, //赞同人数
                     }
-                    console.log(comment)
+                    // console.log(comment)
                     DoubanComments.create(comment, function (err) {
                         if (err) {
                             console.log(err)
@@ -143,6 +162,7 @@ fs.readFile('test.csv', function (err, data) {
                 result.directors.concat(result.screenwriters, result.actors)
                 result.directors.forEach(function (e) {
                     let actor = {
+                        _id: crypto.createHash('md5').update(e.name + e.name_id).digest('hex'),
                         doubanId: e.name_id,
                         name: e.name
                     }

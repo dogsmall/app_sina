@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 var schema = mongoose.Schema
 
 var Film = new schema({
-  objectId: String,
+  _id: String,
   doubanId: String, // 豆瓣id #i
   name: String, //豆瓣名字 #i
   // targetId: String, //研究文件id
@@ -11,12 +11,12 @@ var Film = new schema({
   doubanTags: Array, // 豆瓣成员常用的标签
   moviePic: String, //豆瓣剧目头像url
   year: String, //年份 #i
-  // directors: Array, //导演 #i
-  // screenwriters: Array, //编剧 #i
-  // actors: Array, //演员 #i 
+  directorIds: Array, //导演 #i
+  screenwriterIds: Array, //编剧 #i
+  actorIds: Array, //演员 #i 
   doubanTypes: Array, //类型 #i 
   releaseDate: Array, //发布时间
-  duration: Array, //电影时长
+  duration: Number, //电影时长
   rank: Number, //平均得分 #i
   rankCount: Number, //评分人数 #i
   betterThan: Array, //好于同类百分比
@@ -28,4 +28,4 @@ var Film = new schema({
   awards: Array, //获奖情况
 })
 mongoose.createConnection('mongodb://localhost/gsw')
-module.exports = mongoose.model('film', Film)
+module.exports = mongoose.model('films', Film)
