@@ -13,7 +13,7 @@ var Film = require('./models/film.js')
 
 //匹配时间的正则 ^[0-9]{4}-(((0[13578]|(10|12))-(0[1-9]|[1-2][0-9]|3[0-1]))|(02-(0[1-9]|[1-2][0-9]))|((0[469]|11)-(0[1-9]|[1-2][0-9]|30)))$
 
-fs.readFile('jumu.csv', function (err, data) {
+fs.readFile('test.csv', function (err, data) {
     if (err) {
         console.log("读取失败")
     }
@@ -36,7 +36,6 @@ fs.readFile('jumu.csv', function (err, data) {
         value.splice(3).map(function (e) {
             if (e) {
                 item.keywords.push(e.split('+'))
-                // console.log(e.split("+"))
             }
         })
         items.push(item)
@@ -44,7 +43,7 @@ fs.readFile('jumu.csv', function (err, data) {
 
     items.forEach(function (item) {
         // console.log(item)
-        Jumu.findOne({target_name: item.targetName }, function (err, result) {
+        Jumu.findOne({ category: item.category, target_name: item.targetName }, function (err, result) {
             if (err) {
                 console.log(err)
             }
@@ -53,7 +52,7 @@ fs.readFile('jumu.csv', function (err, data) {
                 let objectId = result._id
                 let name = result.target_name
                 let doubanId = result.url.split('/')[4]
-                let targetId = item.targetId
+                // let targetId = item.targetId
                 let keywords = item.keywords
                 let category = item.category
                 let doubanTags = result.tags
@@ -79,7 +78,7 @@ fs.readFile('jumu.csv', function (err, data) {
                     objectId: objectId,
                     doubanId: doubanId,
                     name: name,
-                    targetId: targetId,
+                    // targetId: targetId,
                     category: category,
                     keywords: keywords,
                     doubanTags: doubanTags,
@@ -93,10 +92,15 @@ fs.readFile('jumu.csv', function (err, data) {
                     betterThan: betterThan,
                     intro: intro,
                     stars: stars,
-                    // pics: pics,
+                    pics: pics,
                     awards: awards
                 }
                 console.log(film)
+                Film.create(film, function (err) {
+                    if (err) {
+                        console.log(err)
+                    }
+                })
                 result.longcomments.map(function (e) {
                     let review = {
                         objectId: objectId,// film表中该剧目的_id
@@ -111,6 +115,11 @@ fs.readFile('jumu.csv', function (err, data) {
                         disagree: e.disagree //反对人数
                     }
                     console.log(review)
+                    DoubanReview.create(review, function (err) {
+                        if (err) {
+                            console.log(err)
+                        }
+                    })
                 })
 
                 result.shortcomments.map(function (e) {
@@ -125,7 +134,25 @@ fs.readFile('jumu.csv', function (err, data) {
                         agree: e.agree, //赞同人数
                     }
                     console.log(comment)
+                    DoubanComments.create(comment, function (err) {
+                        if (err) {
+                            console.log(err)
+                        }
+                    })
                 })
+                result.directors.concat(result.screenwriters, result.actors)
+                result.directors.forEach(function (e) {
+                    let actor = {
+                        doubanId: e.name_id,
+                        name: e.name
+                    }
+                    DoubanActors.create(actor, function (err) {
+                        if (err) {
+                            console.log(err)
+                        }
+                        console.log("演员已保存")
+                    })
+                });
             } else {
                 console.log(item.doubanUrl)
                 console.log(item.targetName)
